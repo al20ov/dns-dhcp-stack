@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  dhcp:
+    build: .
+    network_mode: 'host'
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+    volumes:
+      - './dnsmasq.conf:/etc/dnsmasq.conf'
+      - './logs/:/var/log/dnsmasq/'
+
+  bind9:
+    image: 'ubuntu/bind9:latest'
+    environment:
+      - BIND9_USER=root
+      - TZ=Europe/Paris
+    ports:
+      - '53:53/tcp'
+      - '53:53/udp'
+      - '8080:8080/tcp'
+    volumes:
+      - ./config:/etc/bind
+      - ./cache:/var/cache/bind
+      - ./records:/var/lib/bind
+    restart: unless-stopped
